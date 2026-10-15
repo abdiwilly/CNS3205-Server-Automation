@@ -1,0 +1,45 @@
+name: CNS 3205 - CI/CD Server Dashboard Deployment
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  test-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Checkout Repository Code
+        uses: actions/checkout@v4
+
+      - name: 2. Test Automation Script Syntax
+        run: |
+          echo "Validating Bash script syntax..."
+          bash -n system_health.sh
+          echo "Syntax check passed successfully!"
+
+      - name: 3. Setup GitHub Pages
+        uses: actions/configure-pages@v4
+
+      - name: 4. Package Artifacts
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: 5. Deploy Live to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

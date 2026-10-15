@@ -1,0 +1,56 @@
+#!/bin/bash
+# =========================================================
+# CNS 3205 - Server Administration Automation Script
+# Team: Abdi (169910), Naomi (166383), Lydia (190166)
+# =========================================================
+
+echo "Running Server Health Diagnostics on $(hostname)..."
+
+UPTIME_INFO=$(uptime -p)
+MEMORY_INFO=$(free -h | awk '/^Mem:/ {print $3 "/" $2}')
+DISK_INFO=$(df -h / | awk 'NR==2 {print $3 "/" $2 " (" $5 " used)"}')
+LOAD_INFO=$(uptime | awk -F'load average:' '{ print $2 }')
+
+cat << HTML_EOF > index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CNS 3205 | Cloud Server Dashboard</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #f8fafc; margin: 0; padding: 40px; display: flex; justify-content: center; }
+        .card { background-color: #1e293b; border-radius: 12px; padding: 30px; max-width: 650px; width: 100%; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 1px solid #334155; }
+        h1 { color: #38bdf8; margin-top: 0; font-size: 24px; border-bottom: 2px solid #334155; padding-bottom: 15px; }
+        .badge { background-color: #10b981; color: white; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .metric { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #334155; }
+        .team { margin-top: 25px; background-color: #0f172a; padding: 15px; border-radius: 8px; border: 1px solid #334155; }
+        .team h3 { margin: 0 0 10px 0; color: #94a3b8; font-size: 14px; text-transform: uppercase; }
+        ul { margin: 0; padding-left: 20px; color: #cbd5e1; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Cloud Server Live Monitor <span class="badge">ONLINE</span></h1>
+        <p style="color: #94a3b8;">Automated deployment via GitHub Actions & Azure Ubuntu Cloud Server</p>
+        
+        <div class="metric"><span>Host Server:</span> <strong>$(hostname)</strong></div>
+        <div class="metric"><span>System Uptime:</span> <strong>${UPTIME_INFO}</strong></div>
+        <div class="metric"><span>Memory Usage:</span> <strong>${MEMORY_INFO}</strong></div>
+        <div class="metric"><span>Disk Storage:</span> <strong>${DISK_INFO}</strong></div>
+        <div class="metric"><span>CPU Load Average:</span> <strong>${LOAD_INFO}</strong></div>
+
+        <div class="team">
+            <h3>Engineering Team Members</h3>
+            <ul>
+                <li>Abdi - 169910 (Cloud Infrastructure Lead)</li>
+                <li>Naomi - 166383 (Git & Security Lead)</li>
+                <li>Lydia - 190166 (DevOps & Automation Lead)</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
+HTML_EOF
+
+echo "Success: system_health.sh has generated index.html!"
